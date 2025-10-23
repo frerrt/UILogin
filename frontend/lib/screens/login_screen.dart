@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/auth/bloc/login_bloc.dart'; 
-import 'package:frontend/auth/events/login_event.dart'; 
-import 'package:frontend/auth/states/login_state.dart'; 
-import 'package:frontend/screens/home_screen.dart'; 
+import 'package:frontend/auth/bloc/login_bloc.dart';
+import 'package:frontend/auth/events/login_event.dart';
+import 'package:frontend/auth/states/login_state.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,8 +12,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController(text: 'test@rociny.com'); // Pré-rempli pour la démo
-  final _passwordController = TextEditingController(text: 'password'); // Pré-rempli pour la démo
+  // Identifiants de démo génériques
+  final _emailController = TextEditingController(text: 'test@rociny.com');
+  final _passwordController = TextEditingController(text: 'password');
+
+  // État local pour gérer la visibilité du mot de passe
+  bool _isPasswordVisible = false;
 
   @override
   void dispose() {
@@ -64,7 +67,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 );
             }
-            // La navigation vers HomeScreen est gérée dans le Widget principal (main.dart)
           },
           child: Center(
             child: SingleChildScrollView(
@@ -90,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const Padding(
                     padding: EdgeInsets.only(top: 20.0),
                     child: Text(
-                      "Identifiants pré-remplis pour la démo.",
+                      "Identifiants de démo pré-remplis (test@rociny.com / password).",
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 14,
@@ -148,12 +150,23 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           const SizedBox(height: 20),
 
-          // Champ Mot de passe
+          // Champ Mot de passe (avec toggle de visibilité)
           _buildTextField(
             controller: _passwordController,
             hintText: 'Mot de passe',
             icon: Icons.lock_rounded,
-            isPassword: true,
+            isPassword: !_isPasswordVisible, // Utilise l'état local ici
+            suffixIcon: IconButton(
+              icon: Icon(
+                _isPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                color: Colors.grey.shade600,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isPasswordVisible = !_isPasswordVisible; // Met à jour l'état
+                });
+              },
+            ),
           ),
           const SizedBox(height: 30),
 
@@ -197,6 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
     required String hintText,
     required IconData icon,
     bool isPassword = false,
+    Widget? suffixIcon, // Ajout pour l'icône de l'œil
   }) {
     return TextField(
       controller: controller,
@@ -205,6 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
       decoration: InputDecoration(
         hintText: hintText,
         prefixIcon: Icon(icon, color: Colors.grey.shade600),
+        suffixIcon: suffixIcon, // Ajout de l'icône suffixe
         filled: true,
         fillColor: Colors.grey.shade100,
         border: OutlineInputBorder(

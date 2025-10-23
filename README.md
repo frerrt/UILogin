@@ -26,11 +26,10 @@ rociny-login-case/
     └── ...
 
 
-
 2. Démarrage Rapide
 
 Identifiants de Démonstration Valides :
-Email : test@rociny.com / Mot de passe : test
+Email : test@rociny.com / Mot de passe : password
 
 Composant
 
@@ -64,9 +63,9 @@ Architecture d'Authentification
 
 Fichier/Composant
 
-Rôle:
+Rôle
 
-   Logique Clé:
+Logique Clé
 
 auth.module.ts
 
@@ -74,13 +73,13 @@ Configuration
 
 Importe PassportModule, ajoute JwtStrategy aux providers, et configure le secret pour la signature du JWT.
 
--> jwt.strategy.ts
+jwt.strategy.ts
 
 Validation du Token
 
 Définit la stratégie jwt, extrait, valide la signature du token et attache le payload à req.user.
 
--> auth.service.ts
+auth.service.ts
 
 Logique métier
 
@@ -114,12 +113,7 @@ AuthRepository
 
 Couche de Données
 
-Gère les appels HTTP vers NestJS (/auth/login, /users/profile). 
-
-Règle de Sécurité (Production) : Dans une application réelle, stocker le token en mémoire (RAM) est une faille de sécurité, car le jeton est perdu si l'application est fermée et n'est pas protégé contre certaines attaques. Il faudrait utiliser Flutter Secure Storage.
-
-remarque : Le stockage du token est volatil (en mémoire), conformément aux spécifications du challenge. Pour la production, une solution sécurisée et persistante (ex: Flutter Secure Storage) serait requise.
-
+Gère les appels HTTP vers NestJS (/auth/login, /users/profile). Note : Le stockage du token est volatil (en mémoire), conformément aux spécifications du challenge. Pour la production, une solution sécurisée et persistante (ex: Flutter Secure Storage) serait requise.
 
 LoginBloc
 
@@ -151,6 +145,8 @@ Auto-Login : Vérifie la présence du token en mémoire au démarrage de l'appli
 
 Appel Sécurisé
 
+N/A
+
 L'HomeScreen déclenche l'appel à /users/profile via le Repository pour récupérer les données protégées.
 
 LoginLoggedOut
@@ -159,7 +155,13 @@ LoginInitial
 
 Déconnexion : Supprime le token de la mémoire et retourne l'utilisateur à l'écran de connexion.
 
-IV. Validation Finale : Autorisation JWT
+IV. Améliorations UX et Conclusion
+
+1. Ergonomie et Praticité (Ajout au-delà des exigences)
+
+J'ai ajouté la fonctionnalité de basculement de la visibilité du mot de passe dans le LoginScreen. Cet ajout, bien que mineur en termes de code, est crucial pour l'ergonomie (UX), car il permet à l'utilisateur de vérifier sa saisie et garantit une meilleure praticité d'utilisation du formulaire.
+
+2. Validation Finale : Autorisation JWT
 
 Le succès de l'appel à la ressource protégée (GET /users/profile) est la preuve que le système est entièrement fonctionnel :
 
