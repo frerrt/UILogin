@@ -1,118 +1,92 @@
-# 🧩 Rociny Login Case — Afrid Azar
+Rociny Login Case — Afrid Azar
 
-Cas pratique technique réalisé pour l’application **Rociny**.  
-L’objectif : reproduire l’UI de **login** avec **Flutter (frontend)** et **NestJS (backend)**, en respectant les bonnes pratiques (BLoC, JWT, architecture modulaire).
+Ce projet met en œuvre un système d'authentification complet basé sur les bonnes pratiques du développement Full-Stack : Flutter (Frontend) pour l'interface utilisateur avec l'architecture BLoC, et NestJS (Backend) pour l'API et la gestion du JWT.
 
----
-
-## 📁 Structure du projet
+📁 Structure du Projet
 
 rociny-login-case/
 │
 ├── backend/ ← API NestJS (authentification, JWT)
 │ ├── src/
-│ │ ├── auth/ ← Module d’authentification
+│ │ ├── auth/ 
 │ │ └── main.ts
 │ ├── package.json
 │ └── tsconfig.json
 │
 └── frontend/ ← App Flutter (UI, logique login)
-├── lib/
-│ ├── blocs/ ← Gestion d’état (BLoC)
-│ ├── screens/ ← Interface utilisateur
-│ └── main.dart
-├── pubspec.yaml
-└── ...
+    ├── lib/
+    │   ├── blocs/         ← Gestion d'état (BLoC)
+    │   ├── data_providers/ ← Couche API/Données (http calls)
+    │   ├── screens/       ← Interface utilisateur (UI)
+    │   └── main.dart
+    ├── pubspec.yaml
+    └── ...
 
+⚙️ Démarrage du Projet
 
----
+1. Backend (NestJS)
 
-## 🧠 Partie Backend — NestJS
+Détail	Valeur
+URL de base	http://localhost:3000
+Route de connexion	POST /auth/login
+Identifiants valides	afrid.azar@gmail.com / afrid
 
-### 🎯 Objectif
-Mettre en place un système d’authentification simple basé sur **JWT**, avec une **base de données simulée en mémoire (RAM)**.
+    Naviguez vers le répertoire backend : cd backend
 
----
+    Installez les dépendances : npm install
 
-### 🔐 Authentification (`src/auth/`)
+    Lancez le serveur en mode développement : npm run start:dev
 
-#### 📦 `auth.module.ts`
-Ce module regroupe toute la logique d’authentification.  
-Il importe le `JwtModule`, enregistre le `AuthService` et le `AuthController`, puis l’intègre dans l’application principale (`app.module.ts`).
+2. Frontend (Flutter)
 
-> C’est ce module qui rend les routes `/auth/...` accessibles.
+    Naviguez vers le répertoire frontend : cd ../frontend
 
----
+    Installez les dépendances (http, flutter_bloc, etc.) : flutter pub get
 
-#### ⚙️ `auth.service.ts`
-Ce service contient la logique métier principale du login :
+    Lancez l'application : flutter run
 
-- Simule une **base d’utilisateurs en mémoire** :
-  ```ts
-  private users = [
-    { id: 1, email: 'afrid.azar@gmail.com', password: 'afrid' },
-  ];
+🧠 Partie Backend — NestJS
 
-    Vérifie les identifiants via validateUser(email, password)
+🎯 Objectif
 
-    Si la connexion est valide :
+Mettre en place un système d’authentification simple basé sur JWT, avec une base de données simulée en mémoire (RAM).
 
-        Crée un payload JWT :
+🔐 Architecture d'Authentification (src/auth/)
 
-        const payload = { email: user.email, sub: user.id };
+Fichier	Rôle	Logique Clé
+auth.service.ts	Logique métier	Simule les utilisateurs en mémoire. Valide les identifiants et utilise JwtService pour générer le token à partir du payload { email, sub: id }.
+auth.controller.ts	Point d'entrée API	Définit la route POST /auth/login. Appelle le service et retourne le access_token ou une erreur 401 Unauthorized.
+main.ts	Point d'entrée serveur	Initialise le serveur et le lance sur http://localhost:3000.
 
-        Génère un token JWT grâce à JwtService
+🎨 Partie Frontend — Flutter (Architecture BLoC)
 
-    Retourne ce token au contrôleur
+Le frontend utilise l'architecture BLoC pour séparer la logique d'état de l'interface utilisateur, garantissant une application modulaire et testable.
 
-    💡 Cette approche simule un vrai login sécurisé, sans base de données réelle.
+🧱 Couches Principales
 
-🚪 auth.controller.ts
+Composant	Rôle	Détail
+LoginScreen	Présentation (UI)	Écoute le LoginBloc pour mettre à jour l'UI (afficher un spinner, un message de réussite, ou une erreur) et envoie des Events au Bloc.
+AuthRepository	Couche de Données	Exécute l'appel http.post vers l'API NestJS (/auth/login). Gère la sérialisation/désérialisation JSON et le traitement initial des erreurs HTTP.
+LoginBloc	Logique Métier (BLoC)	Reçoit les Events de l'UI (ex: LoginSubmitted), utilise l'AuthRepository pour communiquer avec NestJS, et émet des States (états) pour informer l'UI du résultat.
 
-C’est ici que la route POST /auth/login est définie.
+🔄 Cycle de Vie BLoC pour la Connexion
 
-    Elle reçoit les données du formulaire :
+L'état de la connexion est géré par la transition des composants BLoC :
 
-{
-  "email": "afrid.azar@gmail.com",
-  "password": "afrid"
-}
+    UI ➡️ BLoC (Event) : L'utilisateur clique sur "Login" → L'UI envoie l'Event LoginSubmitted.
 
-Appelle le service AuthService pour valider l’utilisateur.
+    BLoC (State Transition) : Le Bloc émet l'State LoginLoading (l'UI affiche un spinner).
 
-Renvoie un token JWT si les identifiants sont corrects :
+    BLoC ➡️ Repository : Le Bloc appelle la fonction login() du AuthRepository.
 
-    {
-      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-    }
+    Repository ➡️ NestJS : Le Repository exécute la requête POST /auth/login.
 
-    En cas d’erreur, elle renvoie une réponse 401 Unauthorized.
+    NestJS ➡️ BLoC (Token) : NestJS renvoie le token JWT.
 
-🧱 main.ts
+    BLoC (Final State) :
 
-Point d’entrée de l’application NestJS.
-Il initialise le serveur et lance l’application sur http://localhost:3000
+        Si succès → Émet l'State LoginSuccess(token).
 
-.
-🧪 Test du login via Postman
+        Si échec → Émet l'State LoginFailure(message).
 
-Requête :
-
-POST http://localhost:3000/auth/login
-
-Headers :
-
-{ "Content-Type": "application/json" }
-
-Body :
-
-{
-  "email": "afrid.azar@gmail.com",
-  "password": "afrid"
-}
-
-Réponse attendue :
-
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
+    BLoC ➡️ UI : L'UI réagit au nouvel état pour naviguer ou afficher l'erreur.
