@@ -1,0 +1,38 @@
+Fichier .gitignore pour un projet Full-Stack (Flutter + NestJS)
+
+1. IGNORER LES DEPENDANCES & LES BINS (NESTJS & NODE)
+
+=======================================================
+
+/backend/node_modules # Le répertoire des librairies Node.js téléchargées (volumineux)
+/backend/dist        # Le dossier de sortie du code TypeScript compilé en JavaScript
+/backend/npm-debug.log*
+/backend/yarn-debug.log*
+
+2. IGNORER LES DEPENDANCES & FICHIERS GENERES (FLUTTER/DART)
+
+==============================================================
+
+/frontend/.dart_tool/           # Outils internes de Dart (générés)
+/frontend/.packages             # Liste des dépendances (généré)
+/frontend/.flutter-plugins      # Liste des plugins utilisés (généré)
+/frontend/.flutter-plugins-dependencies
+/frontend/lib/firebase_options.dart # Fichiers de configuration sensibles/générés
+/frontend/build/                # Le dossier contenant les artefacts de construction (APK, web, etc.)
+
+3. FICHIERS GENERAUX (IDE, OS, DIVERS)
+
+======================================
+
+.idea/                          # Fichiers de configuration de l'IDE IntelliJ/Android Studio
+.vscode/                        # Fichiers de configuration de VS Code
+.DS_Store                       # Fichier macOS (inutile)
+*.log                           # Fichiers journaux
+Thumbs.db                       # Fichiers Windows (inutile)
+
+4. FICHIERS DE SECRET (Très important en général)
+
+============================================================================
+
+*.env                           # Fichiers d'environnement
+.env.local                      # Fichiers d'environnement locaux
