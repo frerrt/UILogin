@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthService {
   // 🔹 Simule une base de données en RAM avec un utilisateur exemple
   private users = [
-    { id: 1, email: 'afrid.azar@gmail.com', password: 'afrid' },
+    { id: 1, email: 'test@rociny.com', password: 'test' },
   ];
 
   

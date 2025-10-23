@@ -11,7 +11,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<LoginSubmitted>(_onLoginSubmitted);
     on<LoginLoggedOut>(_onLoginLoggedOut); 
     
-    // ⭐️ AJOUT NÉCESSAIRE : Enregistrement du handler pour l'Auto-Login ⭐️
+    // Enregistrement du handler pour l'Auto-Login
     on<AppStarted>(_onAppStarted); 
   }
 
@@ -27,6 +27,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         email: event.email,
         password: event.password,
       );
+      // Utilise l'état LoginSuccess avec le token
       emit(LoginSuccess(token));
       
     } catch (e) {
@@ -39,17 +40,17 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     LoginLoggedOut event,
     Emitter<LoginState> emit,
   ) async { 
-    // Supprime le token (même si c'est en mémoire pour le contournement)
+    // Supprime le token
     await authRepository.deleteToken(); 
     emit(LoginInitial());
   }
 
-  // ⭐️ MÉTHODE MANQUANTE : Gère l'événement de démarrage pour l'Auto-Login ⭐️
+  // Gère l'événement de démarrage pour l'Auto-Login
   void _onAppStarted(
     AppStarted event,
     Emitter<LoginState> emit,
   ) async {
-    // Lit le token stocké (en mémoire ou sécurisé)
+    // Lit le token stocké
     final token = await authRepository.readToken();
     
     if (token != null) {

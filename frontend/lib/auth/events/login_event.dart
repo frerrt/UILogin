@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-// Classe de base pour tous les événements de connexion
+// Classe de base pour tous les événements
 abstract class LoginEvent extends Equatable {
   const LoginEvent();
 
@@ -8,7 +8,10 @@ abstract class LoginEvent extends Equatable {
   List<Object> get props => [];
 }
 
-// Événement déclenché lorsque l'utilisateur clique sur le bouton "Login"
+// 1. Événement déclenché au démarrage de l'application (pour l'auto-login)
+class AppStarted extends LoginEvent {}
+
+// 2. Événement pour la soumission du formulaire de connexion
 class LoginSubmitted extends LoginEvent {
   final String email;
   final String password;
@@ -19,23 +22,5 @@ class LoginSubmitted extends LoginEvent {
   List<Object> get props => [email, password];
 }
 
-// Événements pour la saisie de texte (utiles pour la validation en direct)
-class LoginEmailChanged extends LoginEvent {
-  final String email;
-  const LoginEmailChanged(this.email);
-  @override
-  List<Object> get props => [email];
-}
-
-class LoginPasswordChanged extends LoginEvent {
-  final String password;
-  const LoginPasswordChanged(this.password);
-  @override
-  List<Object> get props => [password];
-}
-
-// Événement déclenché lorsque l'utilisateur se déconnecte
+// 3. Événement pour la déconnexion
 class LoginLoggedOut extends LoginEvent {}
-
-// ⭐️ ÉVÉNEMENT MANQUANT : Déclenché au démarrage de l'application pour vérifier la session ⭐️
-class AppStarted extends LoginEvent {}
