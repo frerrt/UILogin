@@ -4,89 +4,174 @@ Ce projet met en œuvre un système d'authentification complet basé sur les bon
 
 📁 Structure du Projet
 
+La structure a été affinée pour respecter l'architecture BLoC et intégrer les modules NestJS nécessaires à la sécurité.
+
 rociny-login-case/
 │
-├── backend/ ← API NestJS (authentification, JWT)
+├── backend/ ← API NestJS (authentification, JWT, ressources sécurisées)
 │ ├── src/
-│ │ ├── auth/ 
+│ │ ├── auth/           ← Modules d'Auth, Controller, Service, Stratégie JWT
+│ │ ├── auth/strategy/  ← Contient jwt.strategy.ts
+│ │ ├── users/          ← Contient la ressource protégée (/users/profile)
 │ │ └── main.ts
-│ ├── package.json
-│ └── tsconfig.json
+│ └── ...
 │
 └── frontend/ ← App Flutter (UI, logique login)
-    ├── lib/
-    │   ├── blocs/         ← Gestion d'état (BLoC)
-    │   ├── data_providers/ ← Couche API/Données (http calls)
-    │   ├── screens/       ← Interface utilisateur (UI)
-    │   └── main.dart
-    ├── pubspec.yaml
-    └── ...
+    ├── lib/
+    │   ├── auth/         ← Contient Bloc, Events, States et Repository
+    │   ├── screens/       ← LoginScreen, HomeScreen
+    │   └── main.dart
+    └── ...
+
 
 ⚙️ Démarrage du Projet
 
 1. Backend (NestJS)
 
-Détail	Valeur
-URL de base	http://localhost:3000
-Route de connexion	POST /auth/login
-Identifiants valides	afrid.azar@gmail.com / afrid
+Détail
 
-    Naviguez vers le répertoire backend : cd backend
+Valeur
 
-    Installez les dépendances : npm install
+URL de base
 
-    Lancez le serveur en mode développement : npm run start:dev
+http://localhost:3000
+
+Route de connexion
+
+POST /auth/login
+
+Ressource Protégée
+
+GET /users/profile
+
+Identifiants valides
+
+afrid.azar@gmail.com / afrid
+
+Naviguez vers le répertoire backend : cd backend
+
+Installez les dépendances : npm install
+
+Lancez le serveur en mode développement : npm run start:dev
 
 2. Frontend (Flutter)
 
-    Naviguez vers le répertoire frontend : cd ../frontend
+Naviguez vers le répertoire frontend : cd ../frontend
 
-    Installez les dépendances (http, flutter_bloc, etc.) : flutter pub get
+Installez les dépendances : flutter pub get
 
-    Lancez l'application : flutter run
+Lancez l'application : flutter run
 
 🧠 Partie Backend — NestJS
 
 🎯 Objectif
 
-Mettre en place un système d’authentification simple basé sur JWT, avec une base de données simulée en mémoire (RAM).
+Mettre en place un système d’authentification JWT fonctionnel, incluant la génération et la validation du token, ainsi que la protection d'une ressource.
 
-🔐 Architecture d'Authentification (src/auth/)
+🔐 Architecture d'Authentification
 
-Fichier	Rôle	Logique Clé
-auth.service.ts	Logique métier	Simule les utilisateurs en mémoire. Valide les identifiants et utilise JwtService pour générer le token à partir du payload { email, sub: id }.
-auth.controller.ts	Point d'entrée API	Définit la route POST /auth/login. Appelle le service et retourne le access_token ou une erreur 401 Unauthorized.
-main.ts	Point d'entrée serveur	Initialise le serveur et le lance sur http://localhost:3000.
+Fichier/Composant
+
+Rôle
+
+Logique Clé
+
+auth.module.ts
+
+Configuration
+
+Importe PassportModule et ajoute JwtStrategy aux providers pour activer la stratégie "jwt". Contient la clé secrète du JWT pour la signature.
+
+jwt.strategy.ts
+
+Validation du Token
+
+Définit la stratégie jwt, extrait le token de l'en-tête Authorization: Bearer, valide la signature et l'expiration, et attache le payload à req.user.
+
+auth.service.ts
+
+Logique métier
+
+Valide les identifiants et utilise JwtService pour générer le access_token.
+
+GET /users/profile
+
+Ressource Protégée
+
+Utilise le @UseGuards(JwtAuthGuard) pour rejeter tout accès sans token valide (réponse 401 Unauthorized).
 
 🎨 Partie Frontend — Flutter (Architecture BLoC)
 
-Le frontend utilise l'architecture BLoC pour séparer la logique d'état de l'interface utilisateur, garantissant une application modulaire et testable.
+Le frontend utilise l'architecture BLoC pour garantir une séparation claire des préoccupations et une gestion d'état fiable.
 
 🧱 Couches Principales
 
-Composant	Rôle	Détail
-LoginScreen	Présentation (UI)	Écoute le LoginBloc pour mettre à jour l'UI (afficher un spinner, un message de réussite, ou une erreur) et envoie des Events au Bloc.
-AuthRepository	Couche de Données	Exécute l'appel http.post vers l'API NestJS (/auth/login). Gère la sérialisation/désérialisation JSON et le traitement initial des erreurs HTTP.
-LoginBloc	Logique Métier (BLoC)	Reçoit les Events de l'UI (ex: LoginSubmitted), utilise l'AuthRepository pour communiquer avec NestJS, et émet des States (états) pour informer l'UI du résultat.
+Composant
 
-🔄 Cycle de Vie BLoC pour la Connexion
+Rôle
 
-L'état de la connexion est géré par la transition des composants BLoC :
+Détail
 
-    UI ➡️ BLoC (Event) : L'utilisateur clique sur "Login" → L'UI envoie l'Event LoginSubmitted.
+LoginScreen & HomeScreen
 
-    BLoC (State Transition) : Le Bloc émet l'State LoginLoading (l'UI affiche un spinner).
+Présentation (UI)
 
-    BLoC ➡️ Repository : Le Bloc appelle la fonction login() du AuthRepository.
+Interagit avec le Bloc (envoie des Events) et réagit aux States (met à jour l'UI, navigue).
 
-    Repository ➡️ NestJS : Le Repository exécute la requête POST /auth/login.
+AuthRepository
 
-    NestJS ➡️ BLoC (Token) : NestJS renvoie le token JWT.
+Couche de Données
 
-    BLoC (Final State) :
+Gère tous les appels HTTP vers NestJS (/auth/login, /users/profile). Contournement : utilise un stockage en mémoire pour le token.
 
-        Si succès → Émet l'State LoginSuccess(token).
+LoginBloc
 
-        Si échec → Émet l'State LoginFailure(message).
+Logique Métier (BLoC)
 
-    BLoC ➡️ UI : L'UI réagit au nouvel état pour naviguer ou afficher l'erreur.
+Orchestre la logique de l'application : utilise l'AuthRepository et gère toutes les transitions d'état de la connexion.
+
+🔄 Cycle de Vie BLoC COMPLET
+
+Le LoginBloc gère l'état de l'utilisateur à travers les phases suivantes :
+
+Événement
+
+État
+
+Fonctionnalité
+
+LoginSubmitted
+
+LoginLoading → LoginSuccess
+
+Envoi des identifiants à NestJS et réception du JWT.
+
+AppStarted
+
+LoginSuccess (ou LoginInitial)
+
+Implémentation d'Auto-Login : vérifie la présence du token en mémoire au démarrage.
+
+Appel Sécurisé
+
+N/A
+
+L'HomeScreen déclenche l'appel à /users/profile via le Repository pour récupérer les données protégées.
+
+LoginLoggedOut
+
+LoginInitial
+
+Déconnexion : supprime le token de la mémoire et retourne l'utilisateur à l'écran de connexion.
+
+✅ Validation Finale : Autorisation JWT
+
+Le succès de l'appel à la ressource protégée (GET /users/profile) est la preuve que le système est entièrement fonctionnel :
+
+Le token JWT est correctement généré par NestJS.
+
+Le token JWT est correctement transmis par Flutter (en-tête Authorization: Bearer).
+
+Le JwtAuthGuard de NestJS valide le token, le décode, et permet l'accès à la ressource.
+
+L'application Flutter affiche le message sécurisé et les données utilisateur, confirmant l'autorisation.

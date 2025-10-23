@@ -2,12 +2,11 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-// flutter_secure_storage n'est plus importé
 
 class AuthRepository {
   static const String _baseUrl = 'http://localhost:3000';
   
-  // ⭐️ CONTOURNEMENT : Stockage du token en mémoire (NON SÉCURISÉ) ⭐️
+  // CONTOURNEMENT : Stockage du token en mémoire (NON SÉCURISÉ)
   static String? _inMemoryToken; 
 
   Future<String> login({
@@ -60,5 +59,35 @@ class AuthRepository {
   // SUPPRESSION DU TOKEN EN MÉMOIRE
   Future<void> deleteToken() async {
     _inMemoryToken = null;
+  }
+  
+  // ⭐️ MÉTHODE MANQUANTE : Appel sécurisé à la ressource NestJS ⭐️
+  Future<String> fetchProtectedData(String token) async {
+    const url = '$_baseUrl/users/profile';
+    
+    final headers = {
+      'Content-Type': 'application/json',
+      // C'EST LA CLÉ : AJOUTER LE TOKEN JWT DANS L'EN-TÊTE AUTHORIZATION
+      'Authorization': 'Bearer $token',
+    };
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // Retourne les données reçues du backend pour l'affichage
+        return 'Message: ${data['message']}\n\nDonnées utilisateur : ${jsonEncode(data['userData'])}';
+      } else if (response.statusCode == 401) {
+        throw Exception('Non autorisé. Token invalide.');
+      } else {
+        throw Exception('Échec de la récupération des données: Code ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Erreur réseau ou appel API échoué: $e');
+    }
   }
 }
