@@ -28,25 +28,22 @@ rociny-login-case/
 
 1. Backend (NestJS)
 
-Détail
-
-Valeur
-
-URL de base
+Détail :
+URL de base :
 
 http://localhost:3000
 
-Route de connexion
+Route de connexion :
 
 POST /auth/login
 
-Ressource Protégée
+Ressource Protégée :
 
 GET /users/profile
 
 Identifiants valides
 
-afrid.azar@gmail.com / afrid
+Email : afrid.azar@gmail.com / MDP : afrid   // backend/src/auth/auth.service.ts
 
 Naviguez vers le répertoire backend : cd backend
 
@@ -148,13 +145,11 @@ Envoi des identifiants à NestJS et réception du JWT.
 
 AppStarted
 
-LoginSuccess (ou LoginInitial)
+LoginSuccess 
 
 Implémentation d'Auto-Login : vérifie la présence du token en mémoire au démarrage.
 
 Appel Sécurisé
-
-N/A
 
 L'HomeScreen déclenche l'appel à /users/profile via le Repository pour récupérer les données protégées.
 
