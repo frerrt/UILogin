@@ -56,3 +56,12 @@ jwt.strategy.ts (NestJS) Autorisation JWT            Définit la stratégie jwt 
 ✅ Améliorations UX (Ajout au-delà des exigences)
 Pour améliorer l'ergonomie et la praticité du formulaire de connexion, j'ai ajouté la fonctionnalité de basculement de la visibilité du mot de passe (Icône en œil dans le LoginScreen).
 Ceci démontre une attention particulière à l'expérience utilisateur et aux bonnes pratiques de conception d'interfaces.
+
+✅ Feuille de Route (Améliorations Futures)
+
+Afin d'offrir plus de flexibilité aux utilisateurs, la connexion par des fournisseurs d'identité tiers (Single Sign-On / Social Login) est envisagable :
+
+Intégration de Google Sign-In pour une connexion rapide.
+
+Intégration d'Amazon Sign-In (ou Apple Sign-In) pour élargir les options.
+Ces fonctionnalités nécessiteront l'intégration de SDKs spécifiques côté Frontend (Flutter) et la configuration d'un flux OAuth sécurisé côté Backend (NestJS).
